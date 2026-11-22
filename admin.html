@@ -713,7 +713,7 @@ if(inMinutes !== null){
       });
 
       renderTable();
-      updateDashboard();
+      ();
     } catch (e) {
       console.error("خطأ تحميل الحضور:", e);
     }
@@ -963,7 +963,17 @@ async function(){
     let totalOvertime = 0;
     let totalDelay = 0;
 
-    allAttendanceLogs.forEach(log => {
+    const today =
+        new Date()
+        .toISOString()
+        .split('T')[0];
+    
+    const todayLogs =
+        allAttendanceLogs.filter(
+            log => log.date === today
+        );
+    
+    todayLogs.forEach(log => {
 
         if (
             log.status === "weekly_off" ||
