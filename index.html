@@ -252,7 +252,7 @@
 
     try {
       // حفظ المستند بنظافة: userId يحتوي كود الموظف فقط وبدون name أو userEmail
-      await addDoc(collection(db, "attendance", docId), {
+      await addDoc(doc(db, "attendance", docId), {
         userId: employeeData.employeeCode, // كود الموظف
         date: selectedDate.toLocaleDateString('en-US'),
         year: selectedDate.getFullYear(),
