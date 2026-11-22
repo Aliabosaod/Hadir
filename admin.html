@@ -765,7 +765,6 @@ if(inMinutes !== null){
             document.createElement('option');
 
         opt.value = year;
-
         opt.textContent = year;
 
         yearSelect.appendChild(opt);
@@ -773,13 +772,6 @@ if(inMinutes !== null){
     });
 
     updateMonthSelector();
-    document
-.getElementById('filterYear')
-.addEventListener(
-    'change',
-    updateMonthSelector
-);
-
 }
   function updateMonthSelector() {
 
