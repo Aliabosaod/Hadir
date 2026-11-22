@@ -305,10 +305,9 @@
 
         data.year = data.year || dateObj.getFullYear();
         data.month = data.month || (dateObj.getMonth() + 1);
-        data.formattedDate = (dateObj && !isNaN(dateObj.getTime())) 
-          ? dateObj.toLocaleDateString('en-US') 
-          : (data.date || 'تاريخ غير محدد');
-
+        
+        data.formattedDate = data.date || 'تاريخ غير محدد';
+        
         userLogs.push(data);
       });
 
