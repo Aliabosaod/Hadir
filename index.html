@@ -245,12 +245,14 @@
 
     const selectedDate = new Date(dateVal);
 
+    const docId = `${employeeData.employeeCode}_${dateVal}`;
+
     const checkInFormatted = formatTimeTo12Hour(checkInVal);
     const checkOutFormatted = checkOutVal ? formatTimeTo12Hour(checkOutVal) : null;
 
     try {
       // حفظ المستند بنظافة: userId يحتوي كود الموظف فقط وبدون name أو userEmail
-      await addDoc(collection(db, "attendance"), {
+      await addDoc(collection(db, "attendance", docId), {
         userId: employeeData.employeeCode, // كود الموظف
         date: selectedDate.toLocaleDateString('en-US'),
         year: selectedDate.getFullYear(),
