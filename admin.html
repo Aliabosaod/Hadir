@@ -8,6 +8,23 @@
     body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; background: #f4f6f8; margin: 0; }
     .container { max-width: 1000px; margin: 0 auto; }
     .card { background: white; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .stats-box{
+    background:#f7f7f7;
+    border-radius:10px;
+    padding:15px;
+    text-align:center;
+}
+
+.stats-box h4{
+    margin-bottom:10px;
+}
+
+.stats-box span{
+    font-size:24px;
+    font-weight:bold;
+    color:#1976d2;
+}
+
     h2, h3 { color: #333; margin-top: 0; }
     label { font-size: 14px; color: #555; display: block; margin-top: 10px; font-weight: bold; }
     input, select, button { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; }
@@ -64,7 +81,48 @@
     <h2>👑 لوحة تحكم المدير (Admin)</h2>
     <button onclick="logout()" class="btn-secondary" style="width: auto; padding: 8px 16px; margin: 0;">تسجيل الخروج</button>
   </div>
+<div class="card">
+    <h3>📊 لوحة الإحصائيات</h3>
 
+    <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+        gap:15px;
+        margin-top:15px;
+    ">
+
+        <div class="stats-box">
+            <h4>إجمالي الموظفين</h4>
+            <span id="totalEmployees">0</span>
+        </div>
+
+        <div class="stats-box">
+            <h4>الحضور</h4>
+            <span id="totalPresent">0</span>
+        </div>
+
+        <div class="stats-box">
+            <h4>الإجازات</h4>
+            <span id="totalLeaves">0</span>
+        </div>
+
+        <div class="stats-box">
+            <h4>الغياب</h4>
+            <span id="totalAbsence">0</span>
+        </div>
+
+        <div class="stats-box">
+            <h4>ساعات إضافي</h4>
+            <span id="totalOvertime">0</span>
+        </div>
+
+        <div class="stats-box">
+            <h4>دقائق تأخير</h4>
+            <span id="totalDelay">0</span>
+        </div>
+
+    </div>
+</div>
   <!-- 1. قسم إضافة موظف -->
   <div class="card">
     <h3>👤 إنشاء حساب موظف جديد</h3>
@@ -120,6 +178,51 @@
   <!-- 3. قسم تصدير التقارير الشهرية -->
   <div class="card">
     <h3>📊 تصدير تقارير الحضور والإكسل</h3>
+  <div class="card">
+
+    <h3>🏖 إدارة الإجازات</h3>
+
+    <label>الموظف</label>
+
+    <select id="leaveEmployee"></select>
+
+    <label>التاريخ</label>
+
+    <input
+        type="date"
+        id="leaveDate">
+
+    <label>نوع الإجازة</label>
+
+    <select id="leaveType">
+
+        <option value="annual_leave">
+            إجازة سنوية
+        </option>
+
+        <option value="official_leave">
+            إجازة رسمية
+        </option>
+
+        <option value="deduction_leave">
+            إجازة خصم
+        </option>
+
+        <option value="absence">
+            غياب
+        </option>
+
+    </select>
+
+    <button
+        onclick="saveLeave()"
+        class="btn-success">
+
+        حفظ الإجازة
+
+    </button>
+
+</div>
     <div class="grid-2">
       <div>
         <label for="filterEmployee">اختر الموظف:</label>
@@ -188,6 +291,20 @@
   const ALLOWED_ADMIN_EMAIL = "admin@ess.system";
   let employeesMap = {}; 
   let allAttendanceLogs = [];
+
+  const STATUS_MAP = {
+
+    annual_leave: "إجازة سنوية",
+
+    official_leave: "إجازة رسمية",
+
+    deduction_leave: "إجازة خصم",
+
+    absence: "غياب",
+
+    present: "حضور"
+
+};
 
   const monthNames = [
     "يناير (1)", "فبراير (2)", "مارس (3)", "أبريل (4)", 
@@ -411,6 +528,26 @@
       const querySnapshot = await getDocs(collection(db, "employees"));
       employeesMap = {};
       const filterSelect = document.getElementById('filterEmployee');
+      const leaveEmployee =
+document.getElementById('leaveEmployee');
+
+if(leaveEmployee)
+    leaveEmployee.innerHTML = "";
+      if(leaveEmployee){
+
+    const leaveOpt =
+    document.createElement('option');
+
+    leaveOpt.value =
+    data.employeeCode;
+
+    leaveOpt.textContent =
+    `${data.employeeCode} - ${data.name}`;
+
+    leaveEmployee.appendChild(
+        leaveOpt
+    );
+}
       filterSelect.innerHTML = '<option value="ALL">جميع الموظفين</option>';
 
       querySnapshot.forEach((documentSnap) => {
@@ -551,7 +688,144 @@
     link.click();
     document.body.removeChild(link);
   };
+window.saveLeave =
+async function(){
 
+    const employee =
+    document.getElementById(
+        'leaveEmployee'
+    ).value;
+
+    const leaveDate =
+    document.getElementById(
+        'leaveDate'
+    ).value;
+
+    const leaveType =
+    document.getElementById(
+        'leaveType'
+    ).value;
+
+    if(!employee || !leaveDate){
+
+        alert("أكمل البيانات");
+
+        return;
+    }
+
+    const d =
+    new Date(leaveDate);
+
+    const docId =
+    `${employee}_${leaveDate}`;
+
+    await setDoc(
+        doc(
+            db,
+            "attendance",
+            docId
+        ),
+        {
+
+            userId: employee,
+
+            date: leaveDate,
+
+            status: leaveType,
+
+            checkIn: "-",
+
+            checkOut: "-",
+
+            overtimeMinutes: 0,
+
+            delayMinutes: 0,
+
+            year:
+            d.getFullYear(),
+
+            month:
+            d.getMonth()+1
+
+        }
+    );
+
+    alert(
+        "تم حفظ الإجازة بنجاح"
+    );
+
+    loadAllAttendance();
+
+}
+  window.saveLeave =
+async function(){
+
+    const employee =
+    document.getElementById(
+        'leaveEmployee'
+    ).value;
+
+    const leaveDate =
+    document.getElementById(
+        'leaveDate'
+    ).value;
+
+    const leaveType =
+    document.getElementById(
+        'leaveType'
+    ).value;
+
+    if(!employee || !leaveDate){
+
+        alert("أكمل البيانات");
+
+        return;
+    }
+
+    const d =
+    new Date(leaveDate);
+
+    const docId =
+    `${employee}_${leaveDate}`;
+
+    await setDoc(
+        doc(
+            db,
+            "attendance",
+            docId
+        ),
+        {
+
+            userId: employee,
+
+            date: leaveDate,
+
+            status: leaveType,
+
+            checkIn: "-",
+
+            checkOut: "-",
+
+            overtimeMinutes: 0,
+
+            delayMinutes: 0,
+
+            year:
+            d.getFullYear(),
+
+            month:
+            d.getMonth()+1
+
+        }
+    );
+
+    alert(
+        "تم حفظ الإجازة بنجاح"
+    );
+
+    loadAllAttendance();
+
+}
   window.logout = function() {
     signOut(auth);
   };
