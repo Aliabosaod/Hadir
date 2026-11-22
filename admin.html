@@ -773,7 +773,53 @@ if(inMinutes !== null){
     });
 
     updateMonthSelector();
+    document
+.getElementById('filterYear')
+.addEventListener(
+    'change',
+    updateMonthSelector
+);
 
+}
+  function updateMonthSelector() {
+
+    const yearSelect =
+        document.getElementById('filterYear');
+
+    const monthSelect =
+        document.getElementById('filterMonth');
+
+    const selectedYear =
+        parseInt(yearSelect.value);
+
+    monthSelect.innerHTML = '';
+
+    const months =
+        [...new Set(
+            allAttendanceLogs
+                .filter(
+                    log => log.year === selectedYear
+                )
+                .map(
+                    log => log.month
+                )
+        )];
+
+    months.sort((a,b) => a-b);
+
+    months.forEach(month => {
+
+        const opt =
+            document.createElement('option');
+
+        opt.value = month;
+
+        opt.textContent =
+            monthNames[month - 1];
+
+        monthSelect.appendChild(opt);
+
+    });
 }
 
   // 7. تصدير التقرير الشهري
