@@ -744,42 +744,37 @@ if(inMinutes !== null){
 
   // 6. إعداد خيارات السنة والشهر
   function setupDateSelectors() {
-    const yearSelect = document.getElementById('filterYear');
-    const monthSelect = document.getElementById('filterMonth');
-    const currentYear = new Date().getFullYear();
 
-    monthSelect.innerHTML = '';
+    const yearSelect =
+        document.getElementById('filterYear');
 
-    const selectedYear =
-        parseInt(yearSelect.value);
-    
-    const logsInYear =
-        allAttendanceLogs.filter(
-            log => log.year === selectedYear
-        );
-    
-    const availableMonths =
+    yearSelect.innerHTML = '';
+
+    const years =
         [...new Set(
-            logsInYear.map(
-                log => log.month
-            )
+            allAttendanceLogs
+                .map(log => log.year)
+                .filter(Boolean)
         )];
-    
-    availableMonths.sort((a,b) => a-b);
-    
-    availableMonths.forEach(month => {
-    
+
+    years.sort((a,b) => b-a);
+
+    years.forEach(year => {
+
         const opt =
             document.createElement('option');
-    
-        opt.value = month;
-        opt.textContent =
-            monthNames[month - 1];
-    
-        monthSelect.appendChild(opt);
-    
+
+        opt.value = year;
+
+        opt.textContent = year;
+
+        yearSelect.appendChild(opt);
+
     });
-  }
+
+    updateMonthSelector();
+
+}
 
   // 7. تصدير التقرير الشهري
   window.exportReport = function() {
