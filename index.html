@@ -252,12 +252,12 @@
 
     try {
       // حفظ المستند بنظافة: userId يحتوي كود الموظف فقط وبدون name أو userEmail
-      await addDoc(doc(db, "attendance", docId), {
+      await setDoc(doc(db, "attendance", docId), {
         userId: employeeData.employeeCode, // كود الموظف
-        date: selectedDate.toLocaleDateString('en-US'),
+        date: dateVal,
         year: selectedDate.getFullYear(),
         month: selectedDate.getMonth() + 1,
-        day: dateVal,
+        day: selectedDate.getDate(),
         checkIn: checkInFormatted,
         checkOut: checkOutFormatted,
         timestamp: selectedDate,
