@@ -748,21 +748,36 @@ if(inMinutes !== null){
     const monthSelect = document.getElementById('filterMonth');
     const currentYear = new Date().getFullYear();
 
-    yearSelect.innerHTML = '';
-    for (let y = currentYear; y >= currentYear - 3; y--) {
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      yearSelect.appendChild(opt);
-    }
-
     monthSelect.innerHTML = '';
-    monthNames.forEach((m, index) => {
-      const opt = document.createElement('option');
-      opt.value = index + 1;
-      opt.textContent = m;
-      if (index === new Date().getMonth()) opt.selected = true;
-      monthSelect.appendChild(opt);
+
+    const selectedYear =
+        parseInt(yearSelect.value);
+    
+    const logsInYear =
+        allAttendanceLogs.filter(
+            log => log.year === selectedYear
+        );
+    
+    const availableMonths =
+        [...new Set(
+            logsInYear.map(
+                log => log.month
+            )
+        )];
+    
+    availableMonths.sort((a,b) => a-b);
+    
+    availableMonths.forEach(month => {
+    
+        const opt =
+            document.createElement('option');
+    
+        opt.value = month;
+        opt.textContent =
+            monthNames[month - 1];
+    
+        monthSelect.appendChild(opt);
+    
     });
   }
 
