@@ -510,7 +510,7 @@
               checkOut: checkOut || '-',
               year: year,
               month: month,
-              timestamp: new Date(dateStr),
+              timestamp: new Date(`${dateStr}T00:00:00`),
               createdAt: new Date()
             }, { merge: true });
 
@@ -603,6 +603,7 @@
 
   // 4. تحميل جميع سجلات الحضور
   async function loadAllAttendance() {
+    
     try {
       const querySnapshot = await getDocs(collection(db, "attendance"));
       allAttendanceLogs = [];
@@ -619,6 +620,7 @@
       });
 
       renderTable();
+      updateDashboard();
     } catch (e) {
       console.error("خطأ تحميل الحضور:", e);
     }
@@ -793,7 +795,67 @@ async function(){
     loadAllAttendance();
 
 }
-  
+  function updateDashboard() {
+
+    let totalEmployees =
+        Object.keys(employeesMap).length;
+
+    let totalPresent = 0;
+    let totalLeaves = 0;
+    let totalAbsence = 0;
+    let totalOvertime = 0;
+    let totalDelay = 0;
+
+    allAttendanceLogs.forEach(log => {
+
+        if (
+            log.status === "weekly_off" ||
+            log.status === "annual_leave" ||
+            log.status === "official_leave" ||
+            log.status === "deduction_leave"
+        ) {
+            totalLeaves++;
+        }
+        else if (
+            log.status === "absence"
+        ) {
+            totalAbsence++;
+        }
+        else {
+            totalPresent++;
+        }
+
+        totalOvertime +=
+            Number(log.overtimeMinutes || 0);
+
+        totalDelay +=
+            Number(log.delayMinutes || 0);
+    });
+
+    document.getElementById(
+        "totalEmployees"
+    ).textContent = totalEmployees;
+
+    document.getElementById(
+        "totalPresent"
+    ).textContent = totalPresent;
+
+    document.getElementById(
+        "totalLeaves"
+    ).textContent = totalLeaves;
+
+    document.getElementById(
+        "totalAbsence"
+    ).textContent = totalAbsence;
+
+    document.getElementById(
+        "totalOvertime"
+    ).textContent = totalOvertime;
+
+    document.getElementById(
+        "totalDelay"
+    ).textContent = totalDelay;
+}
   window.logout = function() {
     signOut(auth);
   };
