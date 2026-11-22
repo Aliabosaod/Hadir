@@ -510,7 +510,8 @@
               checkOut: checkOut || '-',
               year: year,
               month: month,
-              timestamp: new Date()
+              timestamp: new Date(dateStr),
+              createdAt: new Date()
             }, { merge: true });
 
             successCount++;
