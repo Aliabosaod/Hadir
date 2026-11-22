@@ -524,47 +524,73 @@
 
   // 3. جلب بيانات الموظفين
   async function loadEmployees() {
-    try {
-      const querySnapshot = await getDocs(collection(db, "employees"));
-      employeesMap = {};
-      const filterSelect = document.getElementById('filterEmployee');
-      const leaveEmployee =
-document.getElementById('leaveEmployee');
 
-if(leaveEmployee)
-    leaveEmployee.innerHTML = "";
-      if(leaveEmployee){
+  try {
 
-    const leaveOpt =
-    document.createElement('option');
+    const querySnapshot =
+      await getDocs(collection(db, "employees"));
 
-    leaveOpt.value =
-    data.employeeCode;
+    employeesMap = {};
 
-    leaveOpt.textContent =
-    `${data.employeeCode} - ${data.name}`;
+    const filterSelect =
+      document.getElementById('filterEmployee');
 
-    leaveEmployee.appendChild(
-        leaveOpt
-    );
-}
-      filterSelect.innerHTML = '<option value="ALL">جميع الموظفين</option>';
+    const leaveEmployee =
+      document.getElementById('leaveEmployee');
 
-      querySnapshot.forEach((documentSnap) => {
-        const data = documentSnap.data();
-        if (data.employeeCode) {
-          employeesMap[data.employeeCode] = data;
+    filterSelect.innerHTML =
+      '<option value="ALL">جميع الموظفين</option>';
 
-          const opt = document.createElement('option');
-          opt.value = data.employeeCode;
-          opt.textContent = `${data.name} (${data.employeeCode}) - ${data.jobTitle || ''}`;
-          filterSelect.appendChild(opt);
+    if (leaveEmployee)
+      leaveEmployee.innerHTML = '';
+
+    querySnapshot.forEach((documentSnap) => {
+
+      const data = documentSnap.data();
+
+      if (data.employeeCode) {
+
+        employeesMap[data.employeeCode] = data;
+
+        const opt =
+          document.createElement('option');
+
+        opt.value = data.employeeCode;
+
+        opt.textContent =
+          `${data.name} (${data.employeeCode}) - ${data.jobTitle || ''}`;
+
+        filterSelect.appendChild(opt);
+
+        if (leaveEmployee) {
+
+          const leaveOpt =
+            document.createElement('option');
+
+          leaveOpt.value =
+            data.employeeCode;
+
+          leaveOpt.textContent =
+            `${data.name} (${data.employeeCode})`;
+
+          leaveEmployee.appendChild(leaveOpt);
+
         }
-      });
-    } catch (e) {
-      console.error("خطأ تحميل قائمة الموظفين:", e);
-    }
+
+      }
+
+    });
+
+  } catch (e) {
+
+    console.error(
+      "خطأ تحميل قائمة الموظفين:",
+      e
+    );
+
   }
+
+}
 
   // 4. تحميل جميع سجلات الحضور
   async function loadAllAttendance() {
