@@ -574,15 +574,22 @@ if(inMinutes !== null){
             0,
             inMinutes - shift.start
         );
-
+    
     if(outMinutes !== null){
-
+    
+        const earlyLeaveMinutes =
+            Math.max(
+                0,
+                shift.end - outMinutes
+            );
+    
+        delayMinutes += earlyLeaveMinutes;
+    
         overtimeMinutes =
             Math.max(
                 0,
                 outMinutes - shift.end
             );
-
     }
 }
 
