@@ -452,7 +452,54 @@
       alert("تعذر النسخ تلقائياً، يمكنك نسخها يدوياً: " + pwd);
     });
   };
+function timeToMinutes(timeStr) {
 
+    if(!timeStr || timeStr === "-")
+        return null;
+
+    const match =
+      timeStr.match(/(\d+):(\d+)\s*(AM|PM|ص|م)/i);
+
+    if(!match)
+        return null;
+
+    let h = parseInt(match[1]);
+    let m = parseInt(match[2]);
+
+    const period = match[3];
+
+    if(period === "PM" || period === "م"){
+        if(h !== 12) h += 12;
+    }else{
+        if(h === 12) h = 0;
+    }
+
+    return h * 60 + m;
+}
+            function getShift(checkInMinutes){
+
+    if(checkInMinutes <= 11*60){
+        return {
+            shift:"A",
+            start:480,   // 8:00
+            end:990      // 4:30
+        };
+    }
+
+    if(checkInMinutes <= 13*60+59){
+        return {
+            shift:"B",
+            start:720,   // 12:00
+            end:1230     // 8:30
+        };
+    }
+
+    return {
+        shift:"C",
+        start:840,      // 2:00
+        end:1350        // 10:30
+    };
+}
   // 2. رفع مع تصحيح تحويل التواريخ والأوقات
   window.uploadAttendanceFile = async function() {
     const fileInput = document.getElementById('attendanceFile');
@@ -504,54 +551,7 @@
 
             const docId = `${userId}_${dateStr}`;
 
-            function timeToMinutes(timeStr) {
-
-    if(!timeStr || timeStr === "-")
-        return null;
-
-    const match =
-      timeStr.match(/(\d+):(\d+)\s*(AM|PM|ص|م)/i);
-
-    if(!match)
-        return null;
-
-    let h = parseInt(match[1]);
-    let m = parseInt(match[2]);
-
-    const period = match[3];
-
-    if(period === "PM" || period === "م"){
-        if(h !== 12) h += 12;
-    }else{
-        if(h === 12) h = 0;
-    }
-
-    return h * 60 + m;
-}
-            function getShift(checkInMinutes){
-
-    if(checkInMinutes <= 11*60){
-        return {
-            shift:"A",
-            start:480,   // 8:00
-            end:990      // 4:30
-        };
-    }
-
-    if(checkInMinutes <= 13*60+59){
-        return {
-            shift:"B",
-            start:720,   // 12:00
-            end:1230     // 8:30
-        };
-    }
-
-    return {
-        shift:"C",
-        start:840,      // 2:00
-        end:1350        // 10:30
-    };
-}
+            
             let overtimeMinutes = 0;
 let delayMinutes = 0;
 let shiftName = "-";
