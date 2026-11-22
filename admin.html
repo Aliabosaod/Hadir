@@ -277,7 +277,7 @@
 
 <!-- استدعاء خدمات Firebase -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, setDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -766,6 +766,7 @@ async function(){
             date: leaveDate,
 
             status: leaveType,
+          timestamp: new Date(leaveDate),
 
             checkIn: "-",
 
@@ -791,75 +792,7 @@ async function(){
     loadAllAttendance();
 
 }
-  window.saveLeave =
-async function(){
-
-    const employee =
-    document.getElementById(
-        'leaveEmployee'
-    ).value;
-
-    const leaveDate =
-    document.getElementById(
-        'leaveDate'
-    ).value;
-
-    const leaveType =
-    document.getElementById(
-        'leaveType'
-    ).value;
-
-    if(!employee || !leaveDate){
-
-        alert("أكمل البيانات");
-
-        return;
-    }
-
-    const d =
-    new Date(leaveDate);
-
-    const docId =
-    `${employee}_${leaveDate}`;
-
-    await setDoc(
-        doc(
-            db,
-            "attendance",
-            docId
-        ),
-        {
-
-            userId: employee,
-
-            date: leaveDate,
-
-            status: leaveType,
-
-            checkIn: "-",
-
-            checkOut: "-",
-
-            overtimeMinutes: 0,
-
-            delayMinutes: 0,
-
-            year:
-            d.getFullYear(),
-
-            month:
-            d.getMonth()+1
-
-        }
-    );
-
-    alert(
-        "تم حفظ الإجازة بنجاح"
-    );
-
-    loadAllAttendance();
-
-}
+  
   window.logout = function() {
     signOut(auth);
   };
