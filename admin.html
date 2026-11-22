@@ -406,10 +406,17 @@
     const generatedPassword = generateRandomPassword();
 
     try {
-      const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+      let secondaryApp;
+
+      if (!getApps().some(app => app.name === "SecondaryApp")) {
+         secondaryApp = initializeApp(firebaseConfig,"SecondaryApp");
+      } else {
+         secondaryApp = getApp("SecondaryApp");
+      }
       const secondaryAuth = getAuth(secondaryApp);
 
       await createUserWithEmailAndPassword(secondaryAuth, email, generatedPassword);
+      await secondaryAuth.signOut();
 
       await setDoc(doc(db, "employees", code), {
         employeeCode: code,
