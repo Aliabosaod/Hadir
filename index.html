@@ -257,10 +257,11 @@
         date: selectedDate.toLocaleDateString('en-US'),
         year: selectedDate.getFullYear(),
         month: selectedDate.getMonth() + 1,
-        day: selectedDate.getDate(),
+        day: dateVal,
         checkIn: checkInFormatted,
         checkOut: checkOutFormatted,
-        timestamp: selectedDate
+        timestamp: selectedDate,
+        createdAt: new Date()
       });
 
       alert("تم حفظ السجل بنجاح!");
