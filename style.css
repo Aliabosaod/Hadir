@@ -31,7 +31,7 @@ input, select, button {
   border: 1px solid #ccc;
   font-size: 15px;
 }
-input[type="date"], input[type="number"] {
+input[type="date"], input[type="time"], input[type="number"] {
   direction: ltr;
 }
 button {
