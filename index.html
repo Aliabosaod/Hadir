@@ -39,16 +39,20 @@
         <label for="entryDate">التاريخ:</label>
         <input type="date" id="entryDate">
         <div class="flex-row">
-          <div>
-            <label for="checkInTime">وقت الحضور 🟢:</label>
-            <input type="time" id="checkInTime">
+          <div class="flex-column">
+            <div>
+              <label for="checkInTime">وقت الحضور 🟢:</label>
+              <input type="time" id="checkInTime">
+            </div>
+            <button onclick="checkIn()" class="btn-success"> تسجيل حضور 🟢 </button>
           </div>
-          <button onclick="checkIn()" class="btn-success"> تسجيل حضور 🟢 </button>
-          <div>
-            <label for="checkOutTime">وقت الانصراف 🔴:</label>
-            <input type="time" id="checkOutTime">
+          <div class="flex-row">
+            <div>
+              <label for="checkOutTime">وقت الانصراف 🔴:</label>
+              <input type="time" id="checkOutTime">
+            </div>
+            <button onclick="checkOut()" class="btn-danger"> تسجيل انصراف 🔴 </button>
           </div>
-          <button onclick="checkOut()" class="btn-danger"> تسجيل انصراف 🔴 </button>
         </div>
       </div>
       <!-- صندوق فلترة وتصدير التقرير الشهري -->

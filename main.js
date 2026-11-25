@@ -146,6 +146,51 @@ window.saveAttendanceRecord = async function () {
     alert("حدث خطأ أثناء حفظ السجل.");
   }
 };
+window.checkIn = async function () {
+  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+
+  const time =
+    now.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+  await setDoc(
+    doc(db, "attendance", `${currentEmployeeCode}_${today}`),
+    {
+      userId: currentEmployeeCode,
+      date: today,
+      checkIn: time,
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+      timestamp: now
+    },
+    { merge: true }
+  );
+
+  alert("تم تسجيل الحضور");
+};
+window.checkOut = async function () {
+  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
+
+  const time =
+    now.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+  await setDoc(
+    doc(db, "attendance", `${currentEmployeeCode}_${today}`),
+    {
+      checkOut: time
+    },
+    { merge: true }
+  );
+
+  alert("تم تسجيل الانصراف");
+};
 
 // 4. تحميل السجلات باستخدام كود الموظف (userId)
 async function loadLogs() {
