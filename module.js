@@ -14,3 +14,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+window.auth = auth;
+window.db = db;
+
+window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+window.onAuthStateChanged = onAuthStateChanged;
+window.signOut = signOut;
+
+window.collection = collection;
+window.setDoc = setDoc;
+window.doc = doc;
+window.getDocs = getDocs;
+window.getDoc = getDoc;
+window.query = query;
+window.where = where;
