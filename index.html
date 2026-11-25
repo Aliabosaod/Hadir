@@ -10,6 +10,10 @@
 
 <body>
   <div class="card">
+    <h1>نظام الحضور والانصراف</h1>
+    <p>مرحباً بك في نظام الحضور والانصراف الخاص بالشركة.</p>
+  </div>
+  <div class="card" id="authContainer">
     <!-- ================= 1. شاشة تسجيل الدخول ================= -->
     <div id="authSection">
       <h2>تسجيل دخول الموظفين</h2>
@@ -19,8 +23,16 @@
       <input type="password" id="password" placeholder="••••••••">
       <button onclick="login()">دخول 🔓</button>
     </div>
+    <div id="loadingSection" style="display: none;">
+      <p>جاري التحقق من بياناتك، يرجى الانتظار...</p>
+    </div>
+    <div id="errorSection" style="display: none;">
+      <p style="color: red;">حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من البريد الإلكتروني وكلمة المرور.</p>
+    </div>
+  </div>
+  <div class="card" id="attendanceContainer" class="hidden">
     <!-- ================= 2. شاشة الحضور والانصراف والتصدير ================= -->
-    <div id="attendanceSection" class="hidden">
+    <div id="attendanceSection">
       <div class="user-info">
         <div class="user-info-header">
           <div>
@@ -56,8 +68,8 @@
         </div>
       </div>
       <!-- صندوق فلترة وتصدير التقرير الشهري -->
+      <h2>السجل الشهري</h2>
       <div class="export-box">
-        <h3 style="font-size: 16px; margin-bottom: 10px;">📊 تصدير التقرير الشهري (Excel)</h3>
         <div class="flex-row">
           <div>
             <label for="yearSelect">السنة:</label>
@@ -74,7 +86,6 @@
         </div>
         <button onclick="exportToExcel()" class="btn-success">تنزيل تقرير الشهر 📥</button>
       </div>
-      <h3>سجل الحضور الشامل:</h3>
       <ul id="logList">جاري تحميل البيانات...</ul>
     </div>
   </div>

@@ -1,5 +1,6 @@
 // استدعاء خدمات Firebase
 import "./module.js";
+
 let currentUser = null;
 let employeeData = null; // تخزين بيانات الموظف الثابتة
 let userLogs = [];
@@ -11,6 +12,22 @@ const monthNames = [
 ];
 const ALLOWED_ADMIN_EMAIL = "admin@ess.system";
 
+function formatTimeForDisplay(time24) {
+  if (!time24) return "";
+
+  const [hours, minutes] = time24.split(":");
+
+  const date = new Date();
+  date.setHours(Number(hours));
+  date.setMinutes(Number(minutes));
+
+  return date.toLocaleTimeString("ar-EG", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  });
+}
+
 document.getElementById('entryDate').valueAsDate = new Date();
 
 onAuthStateChanged(auth, async (user) => {
@@ -21,8 +38,8 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     currentUser = user;
-    document.getElementById('authSection').classList.add('hidden');
-    document.getElementById('attendanceSection').classList.remove('hidden');
+    document.getElementById('authContainer').classList.add('hidden');
+    document.getElementById('attendanceContainer').classList.remove('hidden');
 
     // جلب بيانات الموظف الثابتة من مجموعة employees
     await loadEmployeeProfile();
@@ -35,8 +52,8 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     currentUser = null;
     employeeData = null;
-    document.getElementById('authSection').classList.remove('hidden');
-    document.getElementById('attendanceSection').classList.add('hidden');
+    document.getElementById('authContainer').classList.remove('hidden');
+    document.getElementById('attendanceContainer').classList.add('hidden');
   }
 });
 
@@ -74,6 +91,9 @@ async function loadEmployeeProfile() {
 
 // 1. تسجيل الدخول
 window.login = async function () {
+  document.getElementById('errorSection').style.display = 'none';
+  document.getElementById('attendanceContainer').style.display = 'none';
+  document.getElementById('loadingSection').style.display = 'block';
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
 
@@ -81,9 +101,12 @@ window.login = async function () {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
+    document.getElementById('loadingSection').style.display = 'none';
+    document.getElementById('attendanceContainer').style.display = 'block';
   } catch (error) {
     console.error("خطأ تسجيل الدخول:", error);
-    alert('بيانات الدخول غير صحيحة أو الحساب غير موجود.');
+    document.getElementById('loadingSection').style.display = 'none';
+    document.getElementById('errorSection').style.display = 'block';
   }
 };
 
@@ -92,75 +115,21 @@ window.logout = function () {
   signOut(auth);
 };
 
-function formatTimeTo12Hour(timeStr) {
-  if (!timeStr) return null;
-  const [hours, minutes] = timeStr.split(':');
-  let h = parseInt(hours, 10);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12;
-  h = h ? h : 12;
-  const formattedHour = h < 10 ? '0' + h : h;
-  return `${formattedHour}:${minutes} ${ampm}`;
-}
-
-// 3. حفظ سجل الحضور باستخدام كود الموظف كـ userId
-window.saveAttendanceRecord = async function () {
-  if (!currentUser || !employeeData || !employeeData.employeeCode) {
-    return alert("تعذر الحفظ: كود الموظف غير متوفر في مستند employees.");
-  }
-
-  const dateVal = document.getElementById('entryDate').value;
-  const checkInVal = document.getElementById('checkInTime').value;
-  const checkOutVal = document.getElementById('checkOutTime').value;
-
-  if (!dateVal) return alert("يرجى اختيار التاريخ.");
-  if (!checkInVal) return alert("يرجى إدخال وقت الحضور على الأقل.");
-
-  const selectedDate = new Date(dateVal);
-
-  const docId = `${employeeData.employeeCode}_${dateVal}`;
-
-  const checkInFormatted = formatTimeTo12Hour(checkInVal);
-  const checkOutFormatted = checkOutVal ? formatTimeTo12Hour(checkOutVal) : null;
-
-  try {
-    // حفظ المستند بنظافة: userId يحتوي كود الموظف فقط وبدون name أو userEmail
-    await setDoc(doc(db, "attendance", docId), {
-      userId: employeeData.employeeCode, // كود الموظف
-      date: dateVal,
-      year: selectedDate.getFullYear(),
-      month: selectedDate.getMonth() + 1,
-      day: selectedDate.getDate(),
-      checkIn: checkInFormatted,
-      checkOut: checkOutFormatted,
-      timestamp: selectedDate,
-      createdAt: new Date()
-    });
-
-    alert("تم حفظ السجل بنجاح!");
-    document.getElementById('checkInTime').value = '';
-    document.getElementById('checkOutTime').value = '';
-    loadLogs();
-  } catch (e) {
-    console.error("خطأ الحفظ:", e);
-    alert("حدث خطأ أثناء حفظ السجل.");
-  }
-};
 window.checkIn = async function () {
-  const today = new Date().toISOString().split("T")[0];
+  if (!employeeData?.employeeCode) {
+    return alert("لم يتم تحميل بيانات الموظف بعد");
+  }
+  const selectedDate =
+    document.getElementById("entryDate").value;
   const now = new Date();
 
-  const time =
-    now.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+  const time = document.getElementById('checkInTime').value;
 
   await setDoc(
-    doc(db, "attendance", `${currentEmployeeCode}_${today}`),
+    doc(db, "attendance", `${employeeData.employeeCode}_${selectedDate}`),
     {
-      userId: currentEmployeeCode,
-      date: today,
+      userId: employeeData.employeeCode,
+      date: selectedDate,
       checkIn: time,
       year: now.getFullYear(),
       month: now.getMonth() + 1,
@@ -170,19 +139,19 @@ window.checkIn = async function () {
   );
 
   alert("تم تسجيل الحضور");
+  loadLogs();
 };
 window.checkOut = async function () {
-  const today = new Date().toISOString().split("T")[0];
-  const now = new Date();
+  if (!employeeData?.employeeCode) {
+    return alert("لم يتم تحميل بيانات الموظف بعد");
+  }
+  const selectedDate =
+    document.getElementById("entryDate").value;
 
-  const time =
-    now.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+  const time = document.getElementById('checkOutTime').value;
 
   await setDoc(
-    doc(db, "attendance", `${currentEmployeeCode}_${today}`),
+    doc(db, "attendance", `${employeeData.employeeCode}_${selectedDate}`),
     {
       checkOut: time
     },
@@ -190,6 +159,7 @@ window.checkOut = async function () {
   );
 
   alert("تم تسجيل الانصراف");
+  loadLogs();
 };
 
 // 4. تحميل السجلات باستخدام كود الموظف (userId)
@@ -229,36 +199,63 @@ async function loadLogs() {
       userLogs.push(data);
     });
 
-    userLogs.sort((a, b) => {
-      const timeA = a.timestamp && a.timestamp.toDate ? a.timestamp.toDate().getTime() : (a.timestamp && a.timestamp.seconds ? a.timestamp.seconds * 1000 : 0);
-      const timeB = b.timestamp && b.timestamp.toDate ? b.timestamp.toDate().getTime() : (b.timestamp && b.timestamp.seconds ? b.timestamp.seconds * 1000 : 0);
-      return timeB - timeA;
-    });
+    userLogs.sort((a, b) =>
+      b.date.localeCompare(a.date)
+    );
 
-    renderLogList();
     populateYearSelector();
+    renderLogList();
 
   } catch (e) {
     console.error("خطأ تحميل السجلات:", e);
     list.innerHTML = '<li>حدث خطأ أثناء تحميل السجلات.</li>';
   }
 }
+function getShiftName(id) {
+  const shift = SHIFTS.find(s => s.id === id);
 
+  if (!shift) return "-";
+
+  return `${new Date(`2000-01-01T${shift.start}`).toLocaleTimeString("ar-EG", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  })} → ${new Date(`2000-01-01T${shift.end}`).toLocaleTimeString("ar-EG", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true
+  })}`;
+}
 function renderLogList() {
-  const list = document.getElementById('logList');
-  list.innerHTML = '';
+  const selectedMonth =
+    parseInt(document.getElementById("monthSelect").value);
 
-  if (userLogs.length === 0) {
-    list.innerHTML = '<li>لا توجد سجلات سابقة لك.</li>';
+  const selectedYear =
+    parseInt(document.getElementById("yearSelect").value);
+
+
+  const filteredLogs = userLogs.filter(log =>
+    log.month === selectedMonth &&
+    log.year === selectedYear
+  );
+
+  const list = document.getElementById("logList");
+  list.innerHTML = "";
+
+  if (filteredLogs.length === 0) {
+    list.innerHTML = "<li>لا توجد سجلات لهذا الشهر.</li>";
     return;
   }
 
-  userLogs.forEach((data) => {
+  filteredLogs.forEach((data) => {
     const li = document.createElement('li');
-    li.innerHTML = `<strong>التاريخ:</strong> ${data.formattedDate} | <strong>حضور:</strong> ${data.checkIn} | <strong>انصراف:</strong> ${data.checkOut || '<span style="color:#dc3545;">لم يسجل بعد</span>'}`;
+    li.innerHTML = `<strong>التاريخ:</strong> ${data.formattedDate} | <strong>حضور:</strong> ${formatTimeForDisplay(data.checkIn)} | <strong>انصراف:</strong> ${data.checkOut ? formatTimeForDisplay(data.checkOut) : '<span style="color:#dc3545;">لم يسجل بعد</span>'} | <strong>الشيفت:</strong> ${getShiftName(data.shiftDetected)} | <strong style="color:#dc3545;">التأخير:</strong> ${data.lateMinutes ?? 0} دقيقة | <strong style="color:#198754;">الإضافي:</strong> ${data.overtimeMinutes ?? 0} دقيقة`;
     list.appendChild(li);
   });
 }
+
+document.getElementById("monthSelect")
+  .addEventListener("change", renderLogList);
 
 function populateYearSelector() {
   const yearSelect = document.getElementById('yearSelect');
@@ -331,8 +328,10 @@ window.exportToExcel = function () {
   const empEmail = currentUser ? currentUser.email : '';
 
   filteredLogs.forEach(row => {
-    const checkOutStr = row.checkOut ? row.checkOut : 'لم يسجل انصراف';
-    csvContent += `"${empCode}","${empName}","${empJob}","${empEmail}","${row.formattedDate}","${row.checkIn}","${checkOutStr}"\n`;
+    const checkOutStr = row.checkOut
+      ? formatTimeForDisplay(row.checkOut)
+      : 'لم يسجل انصراف';
+    csvContent += `"${empCode}","${empName}","${empJob}","${empEmail}","${row.formattedDate}","${formatTimeForDisplay(row.checkIn)}","${checkOutStr}"\n`;
   });
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -348,3 +347,157 @@ window.exportToExcel = function () {
   link.click();
   document.body.removeChild(link);
 };
+
+const SHIFTS = [
+  { id: 1, start: "08:00", end: "16:30" },
+  { id: 2, start: "12:00", end: "20:30" },
+  { id: 3, start: "14:00", end: "22:30" }
+];
+const GRACE_PERIOD = 15; // ربع ساعة سماحية
+function timeToMinutes(timeStr) {
+  const [h, m] = timeStr.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function minutesToTime(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h}:${m}`;
+}
+function detectShift(checkIn) {
+
+  const checkInMinutes = timeToMinutes(checkIn);
+
+  let bestShift = null;
+  let smallestDiff = Infinity;
+
+  Object.entries(SHIFTS).forEach(([shiftId, shift]) => {
+
+    const shiftStart = timeToMinutes(shift.start);
+
+    const diff = Math.abs(
+      checkInMinutes - shiftStart
+    );
+
+    if (diff < smallestDiff) {
+      smallestDiff = diff;
+      bestShift = shift.id;
+    }
+
+  });
+
+  return bestShift;
+}
+function calculateAttendance(checkIn, checkOut, shiftId) {
+
+  const shift = SHIFTS.find(s => s.id === shiftId);
+
+  const start = timeToMinutes(shift.start);
+  const end = timeToMinutes(shift.end);
+
+  const inTime = timeToMinutes(checkIn);
+  const outTime = timeToMinutes(checkOut);
+
+  const lateArrival =
+    Math.max(
+      0,
+      inTime - (start + GRACE_PERIOD)
+    );
+
+  const earlyLeave =
+    Math.max(
+      0,
+      end - outTime
+    );
+
+  const overtime =
+    Math.max(
+      0,
+      outTime - end
+    );
+
+  return {
+    shiftId,
+    lateMinutes:
+      lateArrival + earlyLeave,
+    overtimeMinutes:
+      overtime
+  };
+}
+async function recalculateAttendance() {
+
+
+  const snapshot =
+    await getDocs(
+      collection(db, "attendance")
+    );
+
+  for (const docSnap of snapshot.docs) {
+
+    const data = docSnap.data();
+
+    if (data.attendanceCalculated)
+      continue;
+
+    if (!data.checkIn)
+      continue;
+
+    if (!data.checkOut)
+      continue;
+
+    const shiftId =
+      detectShift(data.checkIn);
+
+    const result =
+      calculateAttendance(
+        data.checkIn,
+        data.checkOut,
+        shiftId
+      );
+
+    await setDoc(
+      doc(db, "attendance", docSnap.id),
+      {
+        shiftDetected:
+          result.shiftId,
+
+        lateMinutes:
+          result.lateMinutes,
+
+        overtimeMinutes:
+          result.overtimeMinutes,
+
+        attendanceCalculated:
+          true
+      },
+      {
+        merge: true
+      }
+    );
+
+    console.log(
+      "Processed:",
+      docSnap.id
+    );
+  }
+
+}
+window.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    try {
+
+      await recalculateAttendance();
+
+    } catch (err) {
+
+      console.error(
+        "Audit Error",
+        err
+      );
+
+    }
+
+  }
+);
