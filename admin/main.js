@@ -1,3 +1,5 @@
+// استدعاء خدمات Firebase
+import "./../module.js";
 const ALLOWED_ADMIN_EMAIL = "admin@ess.system";
 let employeesMap = {};
 let allAttendanceLogs = [];
