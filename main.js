@@ -1,3 +1,5 @@
+// استدعاء خدمات Firebase
+import "./module.js";
 let currentUser = null;
 let employeeData = null; // تخزين بيانات الموظف الثابتة
 let userLogs = [];
