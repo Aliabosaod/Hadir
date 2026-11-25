@@ -43,12 +43,13 @@
             <label for="checkInTime">وقت الحضور 🟢:</label>
             <input type="time" id="checkInTime">
           </div>
+          <button onclick="checkIn()" class="btn-success"> تسجيل حضور 🟢 </button>
           <div>
             <label for="checkOutTime">وقت الانصراف 🔴:</label>
             <input type="time" id="checkOutTime">
           </div>
+          <button onclick="checkOut()" class="btn-danger"> تسجيل انصراف 🔴 </button>
         </div>
-        <button onclick="saveAttendanceRecord()" class="btn-success">حفظ السجل 💾</button>
       </div>
       <!-- صندوق فلترة وتصدير التقرير الشهري -->
       <div class="export-box">
