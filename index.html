@@ -67,6 +67,22 @@
           </div>
         </div>
       </div>
+      <h2>🏖 إدارة الإجازات</h2>
+      <div>
+        <label>الموظف</label>
+        <select id="leaveEmployee"></select>
+        <label>التاريخ</label>
+        <input type="date" id="leaveDate">
+        <label>نوع الإجازة</label>
+        <select id="leaveType">
+          <option value="weekly_off"> إجازة أسبوعية </option>
+          <option value="annual_leave"> إجازة سنوية </option>
+          <option value="official_leave"> إجازة رسمية </option>
+          <option value="deduction_leave"> إجازة خصم </option>
+          <option value="absence"> غياب </option>
+        </select>
+        <button onclick="saveLeave()" class="btn-success"> حفظ الإجازة </button>
+      </div>
       <!-- صندوق فلترة وتصدير التقرير الشهري -->
       <h2>السجل الشهري</h2>
       <div class="export-box">

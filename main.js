@@ -33,7 +33,7 @@ document.getElementById('entryDate').valueAsDate = new Date();
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     if (user.email === ALLOWED_ADMIN_EMAIL) {
-      window.location.href = "admin.html";
+      window.location.href = "admin";
       return;
     }
 
@@ -92,7 +92,7 @@ async function loadEmployeeProfile() {
 // 1. تسجيل الدخول
 window.login = async function () {
   document.getElementById('errorSection').style.display = 'none';
-  document.getElementById('attendanceContainer').style.display = 'none';
+  document.getElementById('attendanceContainer').classList.add('hidden');
   document.getElementById('loadingSection').style.display = 'block';
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
@@ -102,7 +102,7 @@ window.login = async function () {
   try {
     await signInWithEmailAndPassword(auth, email, password);
     document.getElementById('loadingSection').style.display = 'none';
-    document.getElementById('attendanceContainer').style.display = 'block';
+    document.getElementById('attendanceContainer').classList.remove('hidden');
   } catch (error) {
     console.error("خطأ تسجيل الدخول:", error);
     document.getElementById('loadingSection').style.display = 'none';
