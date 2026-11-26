@@ -29,6 +29,7 @@ function formatTimeForDisplay(time24) {
 }
 
 document.getElementById('entryDate').valueAsDate = new Date();
+document.getElementById('leaveDate').valueAsDate = new Date();
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -302,6 +303,7 @@ window.updateMonthSelector = function () {
     opt.textContent = monthNames[m - 1];
     monthSelect.appendChild(opt);
   });
+  renderLogList();
 };
 
 // 5. تصدير التقرير (يتم دمج البيانات الثابتة من الموظف مع سجل الحضور)
@@ -482,6 +484,33 @@ async function recalculateAttendance() {
   }
 
 }
+window.saveLeave = async function () {
+  const employee = employeeData?.employeeCode;
+  const leaveDate = document.getElementById('leaveDate').value;
+  const leaveType = document.getElementById('leaveType').value;
+  if (!employee || !leaveDate) {
+    alert("أكمل البيانات");
+    return;
+  }
+  const d = new Date(leaveDate);
+  const docId = `${employee}_${leaveDate}`;
+  await setDoc(doc(db, "attendance", docId), {
+      userId: employee,
+      date: leaveDate,
+      status: leaveType,
+      timestamp: new Date(leaveDate),
+      checkIn: "-",
+      checkOut: "-",
+      overtimeMinutes: 0,
+      delayMinutes: 0,
+      year: d.getFullYear(),
+      month: d.getMonth() + 1
+
+    }
+  );
+  alert("تم حفظ الإجازة بنجاح");
+  renderLogList();
+};
 window.addEventListener(
   "DOMContentLoaded",
   async () => {
